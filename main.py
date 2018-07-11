@@ -8,7 +8,7 @@ src = chiasenhac_vn.new()
 
 
 
-print(src.download_info(query = 'Ride'))
+print(src.download_info(query = 'Voilent Hill Coldplay'))
 
 
 
