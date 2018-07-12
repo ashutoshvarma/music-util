@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup as bs, element, NavigableString
 
 try:
     from MusicSource.Song import  Quality
-    from MusicSource.utility import get_inner_texts, convert_size
+    from MusicSource.util import get_inner_texts, convert_size
 except ModuleNotFoundError:
     from Song import Quality
     from utility import get_inner_texts, convert_size
