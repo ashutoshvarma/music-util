@@ -7,7 +7,7 @@ try:
     from MusicSource.util import get_inner_texts, convert_size
 except ModuleNotFoundError:
     from Song import Quality
-    from utility import get_inner_texts, convert_size
+    from util import get_inner_texts, convert_size
 
 
 
