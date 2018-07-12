@@ -1,3 +1,4 @@
+#Imports
 import requests
 from bs4 import BeautifulSoup as bs, element, NavigableString
 
@@ -5,6 +6,12 @@ import os
 from subprocess import check_call, DEVNULL, STDOUT
 
 from spotipy import oauth2, SpotifyException
+
+try:
+    from MusicSource.Song import  Quality
+except ModuleNotFoundError:
+    from Song import Quality
+    
 
 
 
@@ -254,6 +261,50 @@ def prompt_for_spotify_token(username, scope, client_id = None,
         return token_info['access_token']
     else:
         return None
+
+
+def is_even(x):
+    """Returns True if even."""
+    return x & 1
+
+
+def get_quality( *args, pref=0):
+    """Gets the best, middle or lowest quality from
+       the Quality types given.
+
+       Args:
+            *args: Quality types
+            pref: (0,1,2) int
+                  0 => Best
+                  1 => Middle
+                  2 => Lowest
+    """
+    #Remove duplicate entries
+    args = list(dict.fromkeys(args))
+
+    #make local copy of Qualities
+    q_list = tuple(q for q in Quality)
+    sorted_q = []
+
+    for q in q_list:
+        for given_q in args:
+            if q == given_q:
+                sorted_q.append(q)
+
+    lth = len(sorted_q)
+
+    if pref == 0:
+        return sorted_q[0]
+        
+    elif pref == 1:
+        lth = len(sorted_q)
+        if is_even(lth):
+            return sorted_q[lth//2]
+        else:
+            return sorted_q[(lth+1)//2]
+
+    elif pref == 2:
+        return sorted_q[lth-1]
 
 
 
