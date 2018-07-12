@@ -1,4 +1,0 @@
-*.code-workspace
-env/
-.vscode/
-MusicSource/__pycache__/
