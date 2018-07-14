@@ -7,10 +7,9 @@ from subprocess import check_call, DEVNULL, STDOUT
 
 from spotipy import oauth2, SpotifyException
 
-try:
-    from MusicSource.Song import  Quality
-except ModuleNotFoundError:
-    from Song import Quality
+from MusicSource import chiasenhac_vn
+
+
     
 
 
@@ -293,7 +292,7 @@ def get_quality( *args, pref=0):
     args = list(dict.fromkeys(args))
 
     #make local copy of Qualities
-    q_list = tuple(q for q in Quality)
+    q_list = tuple(q for q in chiasenhac_vn.Quality)
     sorted_q = []
 
     for q in q_list:
