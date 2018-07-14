@@ -4,8 +4,7 @@ import time
 start_time  = time.time()
 
 
-from MusicSource import MusicSource
-
+import MusicSource
 
 
 source = MusicSource.SOURCES['chiasenhac_vn']()

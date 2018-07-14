@@ -8,12 +8,7 @@ from subprocess import check_call, DEVNULL, STDOUT
 from spotipy import oauth2, SpotifyException
 
 
-
-
-    
-
-
-
+   
 def remote_file_size(url, unit='B'):
     """Get the file size using HEAD request.
 
@@ -44,22 +39,17 @@ def remote_file_size(url, unit='B'):
     if not res.status_code == 200:           
         return None
 
-
     if content_key[0] in res.headers.keys():
         size = int(res.headers[content_key[0]].strip())
-
     elif content_key[1] in res.headers.keys():
         size = int(res.headers[content_key[0]].strip())
-
     else:
         return 0
         
-
     if unit == 'B':
         return size
     else:
         return convert_size(size, unit)
-
     return size
 
 
@@ -80,7 +70,6 @@ def get_inner_texts(tag):
 
     # return (line if isinstance(line,NavigableString) 
     #                 else '\n'.join(_get_inner_texts(line)) for line in tag.children)
-
     for child in tag.children:
         if isinstance(child, NavigableString):
             yield child
@@ -99,7 +88,6 @@ def unit_to_bytes(in_unit, size):
 
        Returns:
             Size in bytes [float/int]
-
     """
     in_unit = in_unit.lower()
 
@@ -109,7 +97,6 @@ def unit_to_bytes(in_unit, size):
         size = size*(1024**2)
     elif in_unit == 'gb':
         size = size*(1024**3)
-
     return size
 
 
@@ -133,14 +120,10 @@ def convert_size(size,  unit='mb', dec=2):
             Returns int/float
 
     """
-
-
-
     try:
         unit = unit.lower()
     except AttributeError:
         raise TypeError("'unit' args must be a valid string.")
-
 
     if isinstance(size, str):   
         in_unit = ''.join(s for s in size.lower() if str.isalpha(s))
@@ -148,12 +131,10 @@ def convert_size(size,  unit='mb', dec=2):
     elif isinstance(size, (int, float)):
         in_unit = 'bytes'
 
-    
     if in_unit == unit:
         return size
     else:
         size = unit_to_bytes(in_unit, size)
-
 
     if unit == 'kb':
         size = round(size/(1024**1), dec)
@@ -180,8 +161,6 @@ def is_online():
     return False
 
 
-
-
 def prompt_for_spotify_token(username, scope, client_id = None,
         client_secret = None, redirect_uri = None):
     ''' prompts the user to login if necessary and returns
@@ -202,7 +181,6 @@ def prompt_for_spotify_token(username, scope, client_id = None,
     #Only difference is change in webbrowser calling. It redirect
     #the standard output to dev/null so that terminal does not get
     #filled with gtk warnings and other.
-
 
     if not client_id:
         client_id = os.getenv('SPOTIPY_CLIENT_ID')
@@ -303,7 +281,6 @@ def get_quality(all_qualities, pref=0, *args):
                 sorted_q.append(q)
 
     lth = len(sorted_q)
-
     if pref == 0:
         return sorted_q[0]
         

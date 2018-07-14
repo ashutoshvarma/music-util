@@ -189,9 +189,7 @@ class chiasenhac_vn(BaseSource):
 
         if table_search:
             for rows in enumerate(table_search.find_all('tr')):
-
                 if rows[0] <= max and not rows[0] == 0:     #Escaping header row
-
                     song_name = None
                     artist = None
                     song_url = None
@@ -199,35 +197,27 @@ class chiasenhac_vn(BaseSource):
                     if not rows[0] == 0:    #Escaping header row
                         for col in enumerate(rows[1].find_all('td')):
                             # if col[0] == 0:                   ##Deprected because first
-                            #     index = int(col[1].p.string)  ## <td> is not always int
-                                
+                            #     index = int(col[1].p.string)  ## <td> is not always int                              
                             if col[0] == 1:
                                 #Gets the <a href> tag
                                 song_a = col[1].find('a')                             
                                 if song_a:
                                     p_artist = song_a.find_next('p')
-
                                     song_name = song_a.string                                  
                                     #Gets the content of 'href'
                                     #attribute
                                     if 'href' in song_a.attrs.keys():
                                         song_url = song_a['href']
-
                                     if p_artist:
                                         artist = p_artist.string
-                                    
-                                
-
                         # song_data = dict(song=song, artist=artist, url=song_url)
                         # search_data.insert(rows[0], song_data)
-
                     yield (song_name, artist, song_url)
 
 
     @staticmethod
     def _scrap_download_details(html):
         soup = bs(html, 'html5lib')
-
         download_data = []
 
         #Download links anchor tag
@@ -236,7 +226,6 @@ class chiasenhac_vn(BaseSource):
         for a_download in a_downloads:
             size = None
             quality = None
-
             if 'href' in a_download.attrs.keys():
                 d_url = a_download['href']
             else:
@@ -255,13 +244,9 @@ class chiasenhac_vn(BaseSource):
                 for q in chiasenhac_vn.Quality:
                     if q.value == data[1].strip():
                         quality = q
-                              
 
-            file_data = (quality, d_url, size)
-            
-            download_data.append(file_data)
-        
-            
+            file_data = (quality, d_url, size)           
+            download_data.append(file_data)       
         return download_data
 
 
@@ -297,7 +282,6 @@ class chiasenhac_vn(BaseSource):
         if p_lyrics:
             lyrics = tuple(line.strip() for line in get_inner_texts(p_lyrics))
 
-
         return (song_name, artist, album, year, lyrics)
 
 
@@ -317,7 +301,6 @@ class chiasenhac_vn(BaseSource):
            So increasing or decreasing this {num} can give us current 
            download url.
         """
-
         data = url.split('/')     
         if not increment and int(data[5]) > 0:
             data[5] = str(int(data[5]) - 1)
@@ -414,7 +397,6 @@ for name, class_type in inspect.getmembers(sys.modules[__name__],
     if BaseSource in base_classes:
         #update the dict 
         SOURCES.update({name:source_class})
-
 
 if not SOURCES:
     warnings.warn(_NO_SOURCE_WARNING)
