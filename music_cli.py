@@ -10,7 +10,7 @@ from MusicSource import MusicSource
 
 source = MusicSource.SOURCES['chiasenhac_vn']()
 
-print(source.download_details("http://m2.chiasenhac.vn/mp3/us-uk/us-rap-hiphop/ride~twenty-one-pilots~ts3v0rszq2na41.html"))
+print(source.download_details("http://m2.chiasenhac.vn/mp3/us-uk/us-rap-hiphop/ride~twenty-one-pilots~ts3v0rszq2na41.html")[0])
 
 
 

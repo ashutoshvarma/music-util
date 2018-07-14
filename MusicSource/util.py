@@ -167,6 +167,8 @@ def convert_size(size,  unit='mb', dec=2):
 
 
 def is_online():
+    """Returns True if devices can communicate on internet.
+    """
     for time_out in (2,5,10,15):
         try:
             # connect to the host -- tells us if the host is actually
@@ -177,6 +179,8 @@ def is_online():
         except OSError:
             pass
     return False
+
+
 
 
 def prompt_for_spotify_token(username, scope, client_id = None,
@@ -194,6 +198,12 @@ def prompt_for_spotify_token(username, scope, client_id = None,
          - redirect_uri - the redirect URI of your app
 
     '''
+    #NOTE:-
+    #Modified prompt_for_user_token() from util.py in spotipy.
+    #Only difference is change in webbrowser calling. It redirect
+    #the standard output to dev/null so that terminal does not get
+    #filled with gtk warnings and other.
+
 
     if not client_id:
         client_id = os.getenv('SPOTIPY_CLIENT_ID')

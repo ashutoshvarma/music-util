@@ -28,6 +28,7 @@ _NO_SOURCE_WARNING = ("No Music Source found. "
 
 
 class SourceException(Exception):
+    """Base exception for music sources error."""
     def __init__(self, http_status, code, msg, headers=None):
         self.http_status = http_status
         self.code = code
@@ -43,6 +44,7 @@ class SourceException(Exception):
 
 
 class BaseSource(object):
+    """Base class for all music sources."""
 
     def __init__(self, prefix, header, name="", trace=False, trace_out=False, 
                 requests_session = None, proxies=None, requests_timeout=None):
@@ -305,6 +307,21 @@ class chiasenhac_vn(BaseSource):
 
     @staticmethod
     def refresh_download_url(url, increment=True):  
+        """Tries to refresh the download url if it is changed.
+           
+           Args:
+                url: Download url to refresh
+                increment: if True then increase the base number.
+
+           Download url from www.chiasenhac.vm are generally in
+           form of:-
+            http://data04.chiasenhac.com/downloads/../{num}/..mp3
+
+           This {num} usually changes with time incremently.
+           So increasing or decreasing this {num} can give us current 
+           download url.
+        """
+
         data = url.split('/')     
         if not increment and int(data[5]) > 0:
             data[5] = str(int(data[5]) - 1)
@@ -316,15 +333,76 @@ class chiasenhac_vn(BaseSource):
 
 
     def search(self, query, max=_MAX_SEARCH):
+        """Search the query from music source.
+           
+           Search the given query from http://chiasenhac.vm
+           and fetch the results upto 'max' arg.
+
+           Args:
+                query: A string to search. Ex:- Song name.
+                max: (Optional) Maximum number of results
+                     to retrive. It can take value upto 25 
+                     [Default: 5]
+                    
+           Returns:
+                A generator object of tuples
+                For Example:-
+            
+                ('Ride', 'My Artist', 'http://song.com')
+
+                If some of the value is not found then 'None' 
+                is given.
+
+                If some HttpError occurs such as Not Found 404
+                then it will return the status_code of response
+                object.
+        """
         html = self._get(self._S_URL, s=query)
         return self._scrap_search(html, max)
 
 
     def download_details(self,url):
+        """Scrap the download url and other details.
+
+           Fetch the  quality, download url, size of song
+           and returns them in a list of tuple.
+
+           Args:
+                url: Song url
+                query: Key words about song. It will be used 
+                       to get top search result.
+
+                NOTE:-
+                Only one of them is required. If both of them
+                given then 'url' will be considered.
+
+           Returns:
+                It return the list of tuple containing download
+                info. Syntax:-
+                [(quality, download_url, size),
+                 (quality, download_url, size)]
+
+                NOTE:-
+                quality is of Quality type.     
+        """
         html = self._get(url[:-5] + '_download.html')
         return self._scrap_download_details(html)
 
     def song_info(self,url):
+        """Scrap the song details from given url.
+
+           Retrives the song details such as name, artist
+           album, year, lyrics from song url.
+
+           Args:
+                s_url: Url of the song
+
+           Returns:
+                A list having song_name, artist, album, year,
+                lyrics in respective order.
+                NOTE:- 
+                Lyrics are list type having each line seperately.
+         """
         html = self._get(url)
         return self._scrap_song_info(html)
 
