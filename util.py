@@ -7,7 +7,7 @@ from subprocess import check_call, DEVNULL, STDOUT
 
 from spotipy import oauth2, SpotifyException
 
-from MusicSource import chiasenhac_vn
+
 
 
     
@@ -277,12 +277,14 @@ def is_even(x):
     return x & 1
 
 
-def get_quality( *args, pref=0):
+def get_quality(all_qualities, pref=0, *args):
     """Gets the best, middle or lowest quality from
        the Quality types given.
 
        Args:
-            *args: Quality types
+            all_quality: iterable having all qualities 
+                         from best to lowest 
+            *args: qualities to sort
             pref: (0,1,2) int
                   0 => Best
                   1 => Middle
@@ -292,7 +294,7 @@ def get_quality( *args, pref=0):
     args = list(dict.fromkeys(args))
 
     #make local copy of Qualities
-    q_list = tuple(q for q in chiasenhac_vn.Quality)
+    q_list = tuple(q for q in all_qualities)
     sorted_q = []
 
     for q in q_list:
@@ -316,7 +318,7 @@ def get_quality( *args, pref=0):
         return sorted_q[lth-1]
 
 
-
     
+
 
 
