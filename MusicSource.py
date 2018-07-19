@@ -14,6 +14,7 @@ from util import get_inner_texts, convert_size
 
 
 SOURCES = {}
+SRC_DEFAULT = 'chiasenhac_vn'
 
 _NO_SOURCE_WARNING = ("No Music Source found. "
                       "Make sure there is atleast one class "
@@ -403,6 +404,8 @@ if not SOURCES:
 
 
 
-
+#Returns the default source class
+def get_default():
+    return SOURCES[SRC_DEFAULT]
 
 
