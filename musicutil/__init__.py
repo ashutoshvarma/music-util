@@ -1,2 +1,2 @@
 VERSION = 0.2
-import .MusicSource
+from .MusicSource import get_default, get_source

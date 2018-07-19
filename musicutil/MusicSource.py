@@ -9,7 +9,7 @@ import requests
 from bs4 import BeautifulSoup as bs, element, NavigableString
 import json
 
-from util import get_inner_texts, convert_size
+from .util import get_inner_texts, convert_size
 
 
 
@@ -408,4 +408,6 @@ if not SOURCES:
 def get_default():
     return SOURCES[SRC_DEFAULT]
 
+def get_source(src_name):
+    return SOURCES[src_name]
 
