@@ -167,7 +167,7 @@ class chiasenhac_vn(BaseSource):
         flac = 'Lossless'
         m4a_500kbps = '500kbps'
         mp3_320kbps = '320kbps'
-        mp3_128kbps = '128kbps',
+        mp3_128kbps = '128kbps'
         m4a_32kbps = 'M4A 32kbps'
 
 
