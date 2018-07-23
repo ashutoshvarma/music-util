@@ -9,8 +9,10 @@ import requests
 from bs4 import BeautifulSoup as bs, element, NavigableString
 import json
 
-from .util import get_inner_texts, convert_size
-
+try:
+    from .util import get_inner_texts, convert_size
+except ModuleNotFoundError:
+    from util import get_inner_texts, convert_size
 
 
 SOURCES = {}
@@ -408,6 +410,10 @@ if not SOURCES:
 def get_default():
     return SOURCES[SRC_DEFAULT]
 
-def get_source(src_name):
-    return SOURCES[src_name]
+def get_source(name=None):
+    try:
+        return SOURCES[name]
+    except KeyError:
+        raise KeyError("No source named {} found.".format(name))
+
 
