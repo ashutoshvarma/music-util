@@ -151,7 +151,7 @@ class chiasenhac_vn(BaseSource):
     
     _PREFIX = 'http://chiasenhac.vn/'
     _NAME = 'chiasenhac.vm'
-    _S_URL = "http://search.chiasenhac.vn/search.php"
+    _S_URL = "http://search2.chiasenhac.vn/search.php"
     _HEADERS = {
         'Host': 'chiasenhac.vn',
         'Connection': 'keep-alive',
