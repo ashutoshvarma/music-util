@@ -11,7 +11,7 @@ import json
 
 try:
     from .util import get_inner_texts, convert_size
-except ModuleNotFoundError:
+except (ModuleNotFoundError, ImportError):
     from util import get_inner_texts, convert_size
 
 
