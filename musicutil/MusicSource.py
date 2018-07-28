@@ -313,6 +313,23 @@ class chiasenhac_vn(BaseSource):
 
 
 
+    def get_search_url(self):
+        """Return the current search url to use in POST
+           requests for search queries."""
+
+        html = self._get(self._PREFIX)
+        soup = bs(html, 'html5lib') 
+
+        url = soup.find('form', attrs={'name':'song_list'})['action']
+
+        if url.endswith('?s='):
+            url = url[:-3]
+        # elif url.endswith('s='):
+        #     url = url[:-2]
+        # elif url.endswith('='):
+        #     url = url[:-1]
+        return url
+
 
     def search(self, query, max=_MAX_SEARCH):
         """Search the query from music source.
