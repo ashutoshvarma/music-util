@@ -367,10 +367,11 @@ class Cache:
             if not cache_path:
                 cache_path = cls.CACHE_DIR + func.__name__ + cls.CACHE_EXT
             
-            create_file(cache_path)
 
             def wrapper(*args, **kwargs):
                 
+                create_file(cache_path)
+
                 cache_data = cls._read_cache(cache_path)
                 if cache_data:
                     if not cls.is_cache_expired(cache_data['expire']):
@@ -384,7 +385,7 @@ class Cache:
         return decorater
                 
 
-                                                                     
+
 
 
 
