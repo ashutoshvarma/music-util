@@ -10,9 +10,9 @@ from bs4 import BeautifulSoup as bs, element, NavigableString
 import json
 
 try:
-    from .util import get_inner_texts, convert_size
+    from .util import get_inner_texts, convert_size, Cache
 except (ModuleNotFoundError, ImportError):
-    from util import get_inner_texts, convert_size
+    from util import get_inner_texts, convert_size, Cache
 
 
 SOURCES = {}
@@ -313,7 +313,7 @@ class chiasenhac_vn(BaseSource):
         return '/'.join(data)
 
 
-
+    @Cache.cache_constant()
     def get_search_url(self):
         """Return the current search url to use in POST
            requests for search queries."""

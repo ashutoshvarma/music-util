@@ -3,6 +3,9 @@ import requests
 from bs4 import BeautifulSoup as bs, element, NavigableString
 
 import os
+import ntpath
+import datetime
+import json
 from subprocess import check_call, DEVNULL, STDOUT
 
 from spotipy import oauth2, SpotifyException
@@ -295,7 +298,103 @@ def get_quality(all_qualities, pref=0, *args):
         return sorted_q[lth-1]
 
 
-    
+def create_file(path):
+    """Creates the file and necessary directories if not exist."""
+
+    head, tail = ntpath.split(path)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    open(path,'a+').close()
+
+
+
+class Cache:
+    """Very Simple Class for implementing caching."""
+
+    CACHE_DIR = '.cache/'
+    CACHE_EXT = '.cache'
+
+    @staticmethod
+    def is_cache_expired(time_cache):
+        """Return True is cache is expired.
+           
+           Args:
+                time_cache: A datetime object or timestamp
+                            of cache expire time."""
+        try:
+            if not isinstance(time_cache, datetime.datetime):
+                time_cache = datetime.datetime.fromtimestamp(time_cache)
+            return datetime.datetime.now() > time_cache
+        except TypeError:
+            return True
+
+
+    @staticmethod
+    def _write_cache(path, data, expire):
+        create_file(path)
+        with open(path,'w') as fw:
+            expire = datetime.datetime.now() + datetime.timedelta(hours=expire)
+            data = {'expire': expire.timestamp(), 'content': data}
+            json.dump(data,fw)
+
+
+    @staticmethod
+    def _read_cache(path):
+        try:
+            with open(path,'r') as fr:
+                data = json.load(fr)
+            if not 'expire' in data.keys() and 'content' in data.keys():
+                return None
+            else:
+                return data
+        except json.JSONDecodeError:
+            return None
+
+
+    @classmethod
+    def cache_constant(cls, path=None, expire=24):
+        """Cache the results of function in json format in
+           external file.
+           NOTE:- Apply only on functions whose return is not depended 
+                  upon its arguments.
+
+           Args:
+                path: Full path where cache file will be stored.
+                expire: Hours after which cache expire.
+           """
+        def decorater(func):
+
+            cache_path = path
+            if not cache_path:
+                cache_path = cls.CACHE_DIR + func.__name__ + cls.CACHE_EXT
+            
+            create_file(cache_path)
+
+            def wrapper(*args, **kwargs):
+                
+                cache_data = cls._read_cache(cache_path)
+                if cache_data:
+                    if not cls.is_cache_expired(cache_data['expire']):
+                        return cache_data['content']
+                    
+                data = func(*args, **kwargs)
+                cls._write_cache(cache_path, data, expire)
+                return data
+
+            return wrapper
+        return decorater
+                
+
+                                                                     
+
+
+
+
+
+
+
+
+
+
 
 
 
