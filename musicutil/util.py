@@ -310,7 +310,7 @@ def create_file(path):
 class Cache:
     """Very Simple Class for implementing caching."""
 
-    CACHE_DIR = '.cache/'
+    CACHE_DIR = os.path.join(ntpath.dirname(__file__), '.cache/')
     CACHE_EXT = '.cache'
 
     @staticmethod
