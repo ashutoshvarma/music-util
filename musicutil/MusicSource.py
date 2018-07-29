@@ -161,7 +161,8 @@ class chiasenhac_vn(BaseSource):
         'Accept-Language': 'en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7'   
     }
 
-    _MAX_SEARCH = 5
+    _MAX_SEARCH_PAGE_RESULT = 25                    #Maximum no. of results in search page of chiasenhac.vm
+    _MAX_SEARCH = _MAX_SEARCH_PAGE_RESULT
     _M4A_32_STR = 'Mobile Download: M4A 32kbps'
 
 
@@ -356,8 +357,24 @@ class chiasenhac_vn(BaseSource):
                 then it will return the status_code of response
                 object.
         """
-        html = self._get(self._S_URL, s=query)
-        return self._scrap_search(html, max)
+        odd_num = max % self._MAX_SEARCH_PAGE_RESULT
+        pages = max // self._MAX_SEARCH_PAGE_RESULT
+
+        if pages == 0:
+            html = self._get(self._S_URL, s=query)
+            return self._scrap_search(html, max)
+        else:
+            html = self._get(self._S_URL, s=query, page=1)
+            result = self._scrap_search(html)
+
+            for page_num in range(2, pages+1):
+                html = self._get(self._S_URL, s=query, page=page_num)
+                result = chain(result, self._scrap_search(html))
+
+            html = self._get(self._S_URL, s=query, page=pages+1)
+            result = chain(result, self._scrap_search(html, max=odd_num))
+
+            return result
 
 
     def download_details(self,url):
