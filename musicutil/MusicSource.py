@@ -4,6 +4,7 @@ import importlib
 import inspect
 import warnings
 from enum import Enum
+from itertools import chain
 
 import requests
 from bs4 import BeautifulSoup as bs, element, NavigableString
@@ -151,7 +152,7 @@ class chiasenhac_vn(BaseSource):
     
     _PREFIX = 'http://chiasenhac.vn/'
     _NAME = 'chiasenhac.vm'
-    _S_URL = "http://search2.chiasenhac.vn/search.php"
+    _S_URL = "http://search2.chiase-nhac.vn/search.php"
     _HEADERS = {
         'Host': 'chiasenhac.vn',
         'Connection': 'keep-alive',
@@ -186,7 +187,11 @@ class chiasenhac_vn(BaseSource):
 
 
     @staticmethod
-    def _scrap_search(html, max):
+    def _scrap_search(html, max=None):
+
+        if not max:
+            max = chiasenhac_vn._MAX_SEARCH_PAGE_RESULT
+
         soup = bs(html, 'html5lib')
 
         table_search = soup.find('table', attrs={'class':'tbtable'})
@@ -314,11 +319,12 @@ class chiasenhac_vn(BaseSource):
 
 
     @Cache.cache_constant()
-    def get_search_url(self):
+    def get_search_url(self, html=None):
         """Return the current search url to use in POST
            requests for search queries."""
 
-        html = self._get(self._PREFIX)
+        if not html:
+            html = self._get(self._PREFIX)
         soup = bs(html, 'html5lib') 
 
         url = soup.find('form', attrs={'name':'song_list'})['action']
@@ -330,6 +336,15 @@ class chiasenhac_vn(BaseSource):
         # elif url.endswith('='):
         #     url = url[:-1]
         return url
+
+
+    def _update_search_url(self, html=None):
+        """Tries to update search url."""
+        try:
+            self._S_URL = self.get_search_url(html)
+        except:
+            pass
+
 
 
     def search(self, query, max=_MAX_SEARCH):
@@ -357,6 +372,8 @@ class chiasenhac_vn(BaseSource):
                 then it will return the status_code of response
                 object.
         """
+        self._update_search_url()
+
         odd_num = max % self._MAX_SEARCH_PAGE_RESULT
         pages = max // self._MAX_SEARCH_PAGE_RESULT
 
