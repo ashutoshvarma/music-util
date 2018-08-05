@@ -394,32 +394,40 @@ class chiasenhac_vn(BaseSource):
             return result
 
 
-    def download_details(self,url):
+    def download_details(self,url, json_serializable=False):
         """Scrap the download url and other details.
 
            Fetch the  quality, download url, size of song
-           and returns them in a list of tuple.
+           and returns them in a list of tuple [by Default].
 
            Args:
                 url: Song url
-                query: Key words about song. It will be used 
-                       to get top search result.
-
-                NOTE:-
-                Only one of them is required. If both of them
-                given then 'url' will be considered.
+                json_serializable: if True, then return is jsonizable
 
            Returns:
-                It return the list of tuple containing download
-                info. Syntax:-
-                [(quality, download_url, size),
-                 (quality, download_url, size)]
+                IF json_serializable=False [DEFAULT] :-
+                    It return the list of tuple containing download
+                    info. Syntax:-
+                    [(quality, download_url, size),
+                    (quality, download_url, size)]
 
-                NOTE:-
-                quality is of Quality type.     
+                    NOTE:- quality is of chiasenhac_vn.Quality type
+
+                IF json_serializable=True :-
+                    It return the list of dict containing download
+                    info. Example:-
+                    [{'quality':'Lossless', 'url':'http;//abc/', 'size':'2MB'},
+                    {'quality':'500kbps', 'url':'http;//abd/', 'size':'1MB'}]
         """
+
         html = self._get(url[:-5] + '_download.html')
-        return self._scrap_download_details(html)
+        datas =  self._scrap_download_details(html)
+
+        if json_serializable:
+            return [{'quality':data[0].value ,'url':data[1], 'size':data[2]} for data in datas]
+        else:
+            return datas
+            
 
     def song_info(self,url):
         """Scrap the song details from given url.
