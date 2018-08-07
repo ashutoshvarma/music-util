@@ -347,7 +347,7 @@ class chiasenhac_vn(BaseSource):
 
 
 
-    def search(self, query, max=_MAX_SEARCH):
+    def search(self, query, max=_MAX_SEARCH, json_serializable=False):
         """Search the query from music source.
            
            Search the given query from http://chiasenhac.vm
@@ -358,12 +358,19 @@ class chiasenhac_vn(BaseSource):
                 max: (Optional) Maximum number of results
                      to retrive. It can take value upto 25 
                      [Default: 5]
+                json_serializable: True or False
                     
            Returns:
-                A generator object of tuples
-                For Example:-
-            
-                ('Ride', 'My Artist', 'http://song.com')
+                IF json_serializable=False [DEFAULT] :-
+                    A generator object of tuples
+                    For Example:-
+                
+                    ('Ride', 'My Artist', 'http://song.com')
+                IF json_serializable=True :-
+                    A list of dict with syntax:-
+                    [{'song':'Ride', 'artist':'TwentyOnePilots', 'url':'http://abc.com'},
+                     {'song':'Ride', 'artist':'TwentyOnePilots', 'url':'http://abc.com'}]
+
 
                 If some of the value is not found then 'None' 
                 is given.
@@ -374,24 +381,27 @@ class chiasenhac_vn(BaseSource):
         """
         self._update_search_url()
 
-        odd_num = max % self._MAX_SEARCH_PAGE_RESULT
-        pages = max // self._MAX_SEARCH_PAGE_RESULT
+        if not json_serializable:
+            odd_num = max % self._MAX_SEARCH_PAGE_RESULT
+            pages = max // self._MAX_SEARCH_PAGE_RESULT
 
-        if pages == 0:
-            html = self._get(self._S_URL, s=query)
-            return self._scrap_search(html, max)
+            if pages == 0:
+                html = self._get(self._S_URL, s=query)
+                return self._scrap_search(html, max)
+            else:
+                html = self._get(self._S_URL, s=query, page=1)
+                result = self._scrap_search(html)
+
+                for page_num in range(2, pages+1):
+                    html = self._get(self._S_URL, s=query, page=page_num)
+                    result = chain(result, self._scrap_search(html))
+
+                html = self._get(self._S_URL, s=query, page=pages+1)
+                result = chain(result, self._scrap_search(html, max=odd_num))
+
+                return result
         else:
-            html = self._get(self._S_URL, s=query, page=1)
-            result = self._scrap_search(html)
-
-            for page_num in range(2, pages+1):
-                html = self._get(self._S_URL, s=query, page=page_num)
-                result = chain(result, self._scrap_search(html))
-
-            html = self._get(self._S_URL, s=query, page=pages+1)
-            result = chain(result, self._scrap_search(html, max=odd_num))
-
-            return result
+            return [ {'song':data[0], 'artist':data[1], 'url':data[2]} for data in self.search(query, max)]
 
 
     def download_details(self,url, json_serializable=False):
