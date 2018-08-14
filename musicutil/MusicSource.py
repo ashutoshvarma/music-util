@@ -439,7 +439,7 @@ class chiasenhac_vn(BaseSource):
             return datas
             
 
-    def song_info(self,url):
+    def song_info(self, url, json_serializable=False):
         """Scrap the song details from given url.
 
            Retrives the song details such as name, artist
@@ -447,15 +447,29 @@ class chiasenhac_vn(BaseSource):
 
            Args:
                 s_url: Url of the song
+                json_serializable: if True, then return is jsonizable(a dict)
 
            Returns:
-                A list having song_name, artist, album, year,
-                lyrics in respective order.
+                IF json_serializable=False [DEFAULT] :-
+                    It return the list containing song_name, artist, album, year,
+                    lyrics in respective order.
+
+                IF json_serializable=True :-
+                    It return the list of dict containing download
+                    info. Example:-
+                    [{'name':'Ride', 'artist':'Coldplay', 'year':'2000', 'lyrics':'Lyrics'},
+                    {'name':'Play', 'artist':'Coldplay', 'year':'2011', 'lyrics':'Lyrics'}]
+
                 NOTE:- 
                 Lyrics are list type having each line seperately.
          """
-        html = self._get(url)
-        return self._scrap_song_info(html)
+
+        if not json_serializable:
+            html = self._get(url)
+            return self._scrap_song_info(html)
+        else:
+            data = self.song_info(url)
+            return {'name':data[0], 'artist':data[1], 'album':data[2], 'year':data[3], 'lyrics':data[4]} 
 
 
 
