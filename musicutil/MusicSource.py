@@ -494,9 +494,13 @@ def get_default():
     return SOURCES[SRC_DEFAULT]
 
 def get_source(name=None):
-    try:
-        return SOURCES[name]
-    except KeyError:
-        raise KeyError("No source named {} found.".format(name))
+    if name == 'default':
+        return get_default()
+    else:
+        try:
+            return SOURCES[name]
+        except KeyError:
+            raise KeyError("No source named {} found.".format(name))
+    
 
 
