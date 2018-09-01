@@ -243,7 +243,7 @@ class chiasenhac_vn(BaseSource):
             data = [line for line in get_inner_texts(a_download)]
 
             if len(data) == 1 and chiasenhac_vn._M4A_32_STR in data[0] : 
-                size = data[0][len(chiasenhac_vn._M4A_32_STR):].strip()
+                size = data[0].split(chiasenhac_vn._M4A_32_STR)[1].strip()
                 quality = chiasenhac_vn.Quality.m4a_32kbps
 
             elif len(data) == 3:
