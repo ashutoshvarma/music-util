@@ -164,7 +164,7 @@ class chiasenhac_vn(BaseSource):
 
     _MAX_SEARCH_PAGE_RESULT = 25                    #Maximum no. of results in search page of chiasenhac.vm
     _MAX_SEARCH = _MAX_SEARCH_PAGE_RESULT
-    _M4A_32_STR = 'Mobile Download: M4A 32kbps'
+    _M4A_32_STR = 'M4A 32kbps'
 
 
     class Quality(Enum):
