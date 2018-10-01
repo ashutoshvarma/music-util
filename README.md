@@ -1,15 +1,15 @@
-#MusicUtil
+# MusicUtil
 
 It is a python module for searching and downloading songs from various sources.
 
-##Sources Supported:-
+### Sources Supported:-
 - [chiasenhac_vn](http://chiasenhac.vn)
 
-##Upcoming Source Support:-
+### Upcoming Source Support:-
 - [Spotify](https://spotify.com)
 - [Youtube](https://youtube.com)
 
-##Requirements:-
+#### Requirements:-
 * requests
 * beautifulsoup4
 * spotipy
