@@ -253,10 +253,6 @@ def prompt_for_spotify_token(username, scope, client_id = None,
         return None
 
 
-def is_even(x):
-    """Returns True if even."""
-    return x & 1
-
 
 def get_quality(all_qualities, pref=0, *args):
     """Gets the best, middle or lowest quality from
@@ -296,15 +292,6 @@ def get_quality(all_qualities, pref=0, *args):
 
     elif pref == 2:
         return sorted_q[lth-1]
-
-
-def create_file(path):
-    """Creates the file and necessary directories if not exist."""
-
-    head, tail = ntpath.split(path)
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    open(path,'a+').close()
-
 
 
 class Cache:
