@@ -1,5 +1,5 @@
 #Imports
-import os,sys
+import os, sys
 import importlib
 import inspect
 import warnings
@@ -15,7 +15,6 @@ try:
 except (ModuleNotFoundError, ImportError):
     from util import get_inner_texts, convert_size, Cache
 
-
 SOURCES = {}
 SRC_DEFAULT = 'chiasenhac_vn'
 
@@ -24,16 +23,14 @@ _NO_SOURCE_WARNING = ("No Music Source found. "
                       "inheriting 'BaseSource'. ")
 
 
-
-
-
 class SourceException(Exception):
     """Base exception for music sources error."""
+
     def __init__(self, http_status, code, msg, headers=None):
         self.http_status = http_status
         self.code = code
         self.msg = msg
-        
+
         if headers is None:
             headers = {}
         self.headers = headers
@@ -44,9 +41,15 @@ class SourceException(Exception):
 
 
 class BaseSource(object):
-
-    def __init__(self, prefix, header, name="", trace=False, trace_out=False, 
-                requests_session = None, proxies=None, requests_timeout=None):
+    def __init__(self,
+                 prefix,
+                 header,
+                 name="",
+                 trace=False,
+                 trace_out=False,
+                 requests_session=None,
+                 proxies=None,
+                 requests_timeout=None):
         self.name = name
         self.basename = name
         self.trace = trace
@@ -69,18 +72,22 @@ class BaseSource(object):
                 from requests import api
                 self._session = api
 
-    
-
 
 class BaseSourceScrapper(BaseSource):
     """Base class for all music sources."""
 
-    def __init__(self, prefix, header, name="", trace=False, trace_out=False, 
-                requests_session = None, proxies=None, requests_timeout=None):
+    def __init__(self,
+                 prefix,
+                 header,
+                 name="",
+                 trace=False,
+                 trace_out=False,
+                 requests_session=None,
+                 proxies=None,
+                 requests_timeout=None):
         super().__init__(self._PREFIX, self._HEADERS, self._NAME, trace,
-                         trace_out, requests_session, proxies, requests_timeout)
-
-
+                         trace_out, requests_session, proxies,
+                         requests_timeout)
 
     def _internal_call(self, method, url, return_json, payload, params):
         args = dict(params=params)
@@ -97,11 +104,11 @@ class BaseSourceScrapper(BaseSource):
         if payload:
             args["data"] = json.dumps(payload)
 
-        r = self._session.request(method, url, headers=headers,
-                                  proxies=self.proxies, **args)
+        r = self._session.request(
+            method, url, headers=headers, proxies=self.proxies, **args)
 
         if self.trace_out:
-            print("Base url :",url)
+            print("Base url :", url)
 
         if self.trace:  # pragma: no cover
             print()
@@ -114,8 +121,11 @@ class BaseSourceScrapper(BaseSource):
         try:
             r.raise_for_status()
         except:
-            raise SourceException(r.status_code,
-                -1, '%s:\n %s' % (r.url, 'Error Occured'), headers=r.headers)
+            raise SourceException(
+                r.status_code,
+                -1,
+                '%s:\n %s' % (r.url, 'Error Occured'),
+                headers=r.headers)
         finally:
             r.connection.close()
 
@@ -130,24 +140,20 @@ class BaseSourceScrapper(BaseSource):
         else:
             return None
 
-
     def _get(self, url, args=None, payload=None, is_json=False, **kwargs):
         if args:
             kwargs.update(args)
         return self._internal_call('GET', url, is_json, payload, kwargs)
-
 
     def _post(self, url, args=None, payload=None, is_json=False, **kwargs):
         if args:
             kwargs.update(args)
         return self._internal_call('POST', url, is_json, payload, kwargs)
 
-
     def _delete(self, url, args=None, payload=None, is_json=False, **kwargs):
         if args:
             kwargs.update(args)
         return self._internal_call('DELETE', url, is_json, payload, kwargs)
-
 
     def _put(self, url, args=None, payload=None, is_json=False, **kwargs):
         if args:
@@ -155,28 +161,33 @@ class BaseSourceScrapper(BaseSource):
         return self._internal_call('PUT', url, is_json, payload, kwargs)
 
 
-
 #Music Source Classes#
 #----------------------------------------------
 
+
 class chiasenhac_vn(BaseSourceScrapper):
-    
+
     _PREFIX = 'http://chiasenhac.vn/'
     _NAME = 'chiasenhac.vm'
     _S_URL = "http://search2.chiase-nhac.vn/search.php"
     _HEADERS = {
-        'Host': 'chiasenhac.vn',
-        'Connection': 'keep-alive',
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-        'Accept-Encoding': 'gzip, deflate',
-        'Accept-Language': 'en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7'   
+        'Host':
+        'chiasenhac.vn',
+        'Connection':
+        'keep-alive',
+        'User-Agent':
+        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
+        'Accept':
+        'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Encoding':
+        'gzip, deflate',
+        'Accept-Language':
+        'en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7'
     }
 
-    _MAX_SEARCH_PAGE_RESULT = 25                    #Maximum no. of results in search page of chiasenhac.vm
+    _MAX_SEARCH_PAGE_RESULT = 25  #Maximum no. of results in search page of chiasenhac.vm
     _MAX_SEARCH = _MAX_SEARCH_PAGE_RESULT
     _M4A_32_STR = 'M4A 32kbps'
-
 
     class Quality(Enum):
         flac = 'Lossless'
@@ -185,17 +196,20 @@ class chiasenhac_vn(BaseSourceScrapper):
         mp3_128kbps = '128kbps'
         m4a_32kbps = 'M4A 32kbps'
 
-
-    def __init__(self, requests_session=None, trace=False, trace_out=False,
-                 proxies=None, requests_timeout=None):
+    def __init__(self,
+                 requests_session=None,
+                 trace=False,
+                 trace_out=False,
+                 proxies=None,
+                 requests_timeout=None):
         super().__init__(self._PREFIX, self._HEADERS, self._NAME, trace,
-                         trace_out, requests_session, proxies, requests_timeout)
-
+                         trace_out, requests_session, proxies,
+                         requests_timeout)
 
     @staticmethod
     def _is_download_a(tag):
-        return tag.name == 'a' and tag.has_attr('title') and 'Click' in tag['title']
-
+        return tag.name == 'a' and tag.has_attr(
+            'title') and 'Click' in tag['title']
 
     @staticmethod
     def _scrap_search(html, max=None):
@@ -205,25 +219,25 @@ class chiasenhac_vn(BaseSourceScrapper):
 
         soup = bs(html, 'html5lib')
 
-        table_search = soup.find('table', attrs={'class':'tbtable'})
+        table_search = soup.find('table', attrs={'class': 'tbtable'})
 
         if table_search:
             for rows in enumerate(table_search.find_all('tr')):
-                if rows[0] <= max and not rows[0] == 0:     #Escaping header row
+                if rows[0] <= max and not rows[0] == 0:  #Escaping header row
                     song_name = None
                     artist = None
                     song_url = None
 
-                    if not rows[0] == 0:    #Escaping header row
+                    if not rows[0] == 0:  #Escaping header row
                         for col in enumerate(rows[1].find_all('td')):
                             # if col[0] == 0:                   ##Deprected because first
-                            #     index = int(col[1].p.string)  ## <td> is not always int                              
+                            #     index = int(col[1].p.string)  ## <td> is not always int
                             if col[0] == 1:
                                 #Gets the <a href> tag
-                                song_a = col[1].find('a')                             
+                                song_a = col[1].find('a')
                                 if song_a:
                                     p_artist = song_a.find_next('p')
-                                    song_name = song_a.string                                  
+                                    song_name = song_a.string
                                     #Gets the content of 'href'
                                     #attribute
                                     if 'href' in song_a.attrs.keys():
@@ -233,7 +247,6 @@ class chiasenhac_vn(BaseSourceScrapper):
                         # song_data = dict(song=song, artist=artist, url=song_url)
                         # search_data.insert(rows[0], song_data)
                     yield (song_name, artist, song_url)
-
 
     @staticmethod
     def _scrap_download_details(html):
@@ -253,7 +266,7 @@ class chiasenhac_vn(BaseSourceScrapper):
 
             data = [line for line in get_inner_texts(a_download)]
 
-            if len(data) == 1 and chiasenhac_vn._M4A_32_STR in data[0] : 
+            if len(data) == 1 and chiasenhac_vn._M4A_32_STR in data[0]:
                 size = data[0].split(chiasenhac_vn._M4A_32_STR)[1].strip()
                 quality = chiasenhac_vn.Quality.m4a_32kbps
 
@@ -265,10 +278,9 @@ class chiasenhac_vn(BaseSourceScrapper):
                     if q.value == data[1].strip():
                         quality = q
 
-            file_data = (quality, d_url, size)           
-            download_data.append(file_data)       
+            file_data = (quality, d_url, size)
+            download_data.append(file_data)
         return download_data
-
 
     @staticmethod
     def _scrap_song_info(html):
@@ -279,9 +291,9 @@ class chiasenhac_vn(BaseSourceScrapper):
         year = None
         lyrics = []
 
-        soup = bs(html, 'html5lib') 
-    
-        div_songinfo = soup.find('div' ,attrs={"id":"fulllyric"})
+        soup = bs(html, 'html5lib')
+
+        div_songinfo = soup.find('div', attrs={"id": "fulllyric"})
 
         #For Song Name
         a_song_name = div_songinfo.find('strong').a
@@ -289,7 +301,7 @@ class chiasenhac_vn(BaseSourceScrapper):
             song_name = a_song_name.string.strip()
 
         #For Other Info(Artist, Album, Year)
-        for i,tag in enumerate(div_songinfo.find_all('b')):
+        for i, tag in enumerate(div_songinfo.find_all('b')):
             if i == 0:
                 artist = tag.string
             elif i == 1:
@@ -298,15 +310,14 @@ class chiasenhac_vn(BaseSourceScrapper):
                 year = tag.string
 
         #For Lyrics
-        p_lyrics = div_songinfo.find('p',attrs={"class":"genmed"})
+        p_lyrics = div_songinfo.find('p', attrs={"class": "genmed"})
         if p_lyrics:
             lyrics = tuple(line.strip() for line in get_inner_texts(p_lyrics))
 
         return (song_name, artist, album, year, lyrics)
 
-
     @staticmethod
-    def refresh_download_url(url, increment=True):  
+    def refresh_download_url(url, increment=True):
         """Tries to refresh the download url if it is changed.
            
            Args:
@@ -321,13 +332,12 @@ class chiasenhac_vn(BaseSourceScrapper):
            So increasing or decreasing this {num} can give us current 
            download url.
         """
-        data = url.split('/')     
+        data = url.split('/')
         if not increment and int(data[5]) > 0:
             data[5] = str(int(data[5]) - 1)
         else:
             data[5] = str(int(data[5]) + 1)
         return '/'.join(data)
-
 
     @Cache.cache_constant()
     def get_search_url(self, html=None):
@@ -336,9 +346,9 @@ class chiasenhac_vn(BaseSourceScrapper):
 
         if not html:
             html = self._get(self._PREFIX)
-        soup = bs(html, 'html5lib') 
+        soup = bs(html, 'html5lib')
 
-        url = soup.find('form', attrs={'name':'song_list'})['action']
+        url = soup.find('form', attrs={'name': 'song_list'})['action']
 
         if url.endswith('?s='):
             url = url[:-3]
@@ -348,15 +358,12 @@ class chiasenhac_vn(BaseSourceScrapper):
         #     url = url[:-1]
         return url
 
-
     def _update_search_url(self, html=None):
         """Tries to update search url."""
         try:
             self._S_URL = self.get_search_url(html)
         except:
             pass
-
-
 
     def search(self, query, max=_MAX_SEARCH, json_serializable=False):
         """Search the query from music source.
@@ -396,7 +403,7 @@ class chiasenhac_vn(BaseSourceScrapper):
             odd_num = max % self._MAX_SEARCH_PAGE_RESULT
             pages = max // self._MAX_SEARCH_PAGE_RESULT
 
-            if pages == 0:
+            if pages in  (0,1) :
                 html = self._get(self._S_URL, s=query)
                 return self._scrap_search(html, max)
             else:
@@ -411,11 +418,15 @@ class chiasenhac_vn(BaseSourceScrapper):
                 result = chain(result, self._scrap_search(html, max=odd_num))
 
                 return result
+            
         else:
-            return [ {'song':data[0], 'artist':data[1], 'url':data[2]} for data in self.search(query, max)]
+            return [{
+                'song': data[0],
+                'artist': data[1],
+                'url': data[2]
+            } for data in self.search(query, max)]
 
-
-    def download_details(self,url, json_serializable=False):
+    def download_details(self, url, json_serializable=False):
         """Scrap the download url and other details.
 
            Fetch the  quality, download url, size of song
@@ -442,13 +453,16 @@ class chiasenhac_vn(BaseSourceScrapper):
         """
 
         html = self._get(url[:-5] + '_download.html')
-        datas =  self._scrap_download_details(html)
+        datas = self._scrap_download_details(html)
 
         if json_serializable:
-            return [{'quality':data[0].value ,'url':data[1], 'size':data[2]} for data in datas]
+            return [{
+                'quality': data[0].value,
+                'url': data[1],
+                'size': data[2]
+            } for data in datas]
         else:
             return datas
-            
 
     def song_info(self, url, json_serializable=False):
         """Scrap the song details from given url.
@@ -480,28 +494,35 @@ class chiasenhac_vn(BaseSourceScrapper):
             return self._scrap_song_info(html)
         else:
             data = self.song_info(url)
-            return {'name':data[0], 'artist':data[1], 'album':data[2], 'year':data[3], 'lyrics':data[4]} 
-
-
+            return {
+                'name': data[0],
+                'artist': data[1],
+                'album': data[2],
+                'year': data[3],
+                'lyrics': data[4]
+            }
 
 
 #Register music sources( class which inherit 'BaseSource')
-for name, class_type in inspect.getmembers(sys.modules[__name__], 
-        lambda member: inspect.isclass(member) and member.__module__ == __name__):
-    if not name == "BaseSourceScrapper":                                                #TODO: Replace this Hardcoded hotfix with
-        source_class, *base_classes = inspect.getmro(class_type)                        #      permanent fix.
+for name, class_type in inspect.getmembers(
+        sys.modules[__name__],
+        lambda member: inspect.isclass(member) and member.__module__ == __name__
+):
+    if not name == "BaseSourceScrapper":  #TODO: Replace this Hardcoded hotfix with
+        source_class, *base_classes = inspect.getmro(
+            class_type)  #      permanent fix.
         if BaseSource in base_classes:
-            #update the dict 
-            SOURCES.update({name:source_class})
+            #update the dict
+            SOURCES.update({name: source_class})
 
 if not SOURCES:
     warnings.warn(_NO_SOURCE_WARNING)
 
 
-
 #Returns the default source class
 def get_default():
     return SOURCES[SRC_DEFAULT]
+
 
 def get_source(name=None):
     if name == 'default':
@@ -511,7 +532,3 @@ def get_source(name=None):
             return SOURCES[name]
         except KeyError:
             raise KeyError("No source named {} found.".format(name))
-    
-
-
-
