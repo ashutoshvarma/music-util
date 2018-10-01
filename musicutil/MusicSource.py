@@ -403,22 +403,30 @@ class chiasenhac_vn(BaseSourceScrapper):
             odd_num = max % self._MAX_SEARCH_PAGE_RESULT
             pages = max // self._MAX_SEARCH_PAGE_RESULT
 
-            if pages in  (0,1) :
-                html = self._get(self._S_URL, s=query)
-                return self._scrap_search(html, max)
-            else:
-                html = self._get(self._S_URL, s=query, page=1)
-                result = self._scrap_search(html)
+            # if pages in  (0,1) :
+            #     html = self._get(self._S_URL, s=query)
+            #     return self._scrap_search(html, max)
+            # else:
+            #     html = self._get(self._S_URL, s=query, page=1)
+            #     result = self._scrap_search(html)
 
-                for page_num in range(2, pages+1):
-                    html = self._get(self._S_URL, s=query, page=page_num)
-                    result = chain(result, self._scrap_search(html))
+            #     for page_num in range(2, pages+1):
+            #         html = self._get(self._S_URL, s=query, page=page_num)
+            #         result = chain(result, self._scrap_search(html))
 
-                html = self._get(self._S_URL, s=query, page=pages+1)
-                result = chain(result, self._scrap_search(html, max=odd_num))
+            #     html = self._get(self._S_URL, s=query, page=pages+1)
+            #     result = chain(result, self._scrap_search(html, max=odd_num))
 
-                return result
-            
+            #     return result
+            result = []
+            for page_num in range(0, pages):
+                html = self._get(self._S_URL, s=query, page=page_num + 1)
+                result = chain(result, self._scrap_search(html))
+            if odd_num:
+                html = self._get(self._S_URL, s=query, page=pages + 1)
+                return chain(result, self._scrap_search(html, max=odd_num))
+
+            return result
         else:
             return [{
                 'song': data[0],
