@@ -44,7 +44,6 @@ class SourceException(Exception):
 
 
 class BaseSource(object):
-    """Base class for all music sources."""
 
     def __init__(self, prefix, header, name="", trace=False, trace_out=False, 
                 requests_session = None, proxies=None, requests_timeout=None):
@@ -69,6 +68,18 @@ class BaseSource(object):
             else:  # Use the Requests API module as a "session".
                 from requests import api
                 self._session = api
+
+    
+
+
+class BaseSourceScrapper(BaseSource):
+    """Base class for all music sources."""
+
+    def __init__(self, prefix, header, name="", trace=False, trace_out=False, 
+                requests_session = None, proxies=None, requests_timeout=None):
+        super().__init__(self._PREFIX, self._HEADERS, self._NAME, trace,
+                         trace_out, requests_session, proxies, requests_timeout)
+
 
 
     def _internal_call(self, method, url, return_json, payload, params):
@@ -148,7 +159,7 @@ class BaseSource(object):
 #Music Source Classes#
 #----------------------------------------------
 
-class chiasenhac_vn(BaseSource):
+class chiasenhac_vn(BaseSourceScrapper):
     
     _PREFIX = 'http://chiasenhac.vn/'
     _NAME = 'chiasenhac.vm'
@@ -474,15 +485,14 @@ class chiasenhac_vn(BaseSource):
 
 
 
-
 #Register music sources( class which inherit 'BaseSource')
 for name, class_type in inspect.getmembers(sys.modules[__name__], 
         lambda member: inspect.isclass(member) and member.__module__ == __name__):
-
-    source_class, *base_classes = inspect.getmro(class_type)
-    if BaseSource in base_classes:
-        #update the dict 
-        SOURCES.update({name:source_class})
+    if not name == "BaseSourceScrapper":                                                #TODO: Replace this Hardcoded hotfix with
+        source_class, *base_classes = inspect.getmro(class_type)                        #      permanent fix.
+        if BaseSource in base_classes:
+            #update the dict 
+            SOURCES.update({name:source_class})
 
 if not SOURCES:
     warnings.warn(_NO_SOURCE_WARNING)
@@ -502,5 +512,6 @@ def get_source(name=None):
         except KeyError:
             raise KeyError("No source named {} found.".format(name))
     
+
 
 
