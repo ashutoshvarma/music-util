@@ -12,6 +12,6 @@ It is a python module for searching and downloading songs from various sources.
 #### Requirements:-
 * requests
 * beautifulsoup4
-* spotipy
-* html5lib
+* spotify
+* html 5 lib
 
