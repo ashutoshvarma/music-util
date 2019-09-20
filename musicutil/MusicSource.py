@@ -169,7 +169,7 @@ class chiasenhac_vn(BaseSourceScrapper):
 
     _PREFIX = 'http://chiasenhac.vn/'
     _NAME = 'chiasenhac.vm'
-    _S_URL = "http://search2.chiase-nhac.vn/search.php"
+    _S_URL = "https://chiasenhac.vn/tim-kiem"
     _HEADERS = {
         'Host':
         'chiasenhac.vn',
@@ -185,7 +185,7 @@ class chiasenhac_vn(BaseSourceScrapper):
         'en-IN,en-GB;q=0.9,en-US;q=0.8,en;q=0.7'
     }
 
-    _MAX_SEARCH_PAGE_RESULT = 25  #Maximum no. of results in search page of chiasenhac.vm
+    _MAX_SEARCH_PAGE_RESULT = 10  #Maximum no. of results in search page of chiasenhac.vm
     _MAX_SEARCH = _MAX_SEARCH_PAGE_RESULT
     _M4A_32_STR = 'M4A 32kbps'
 
@@ -194,7 +194,7 @@ class chiasenhac_vn(BaseSourceScrapper):
         m4a_500kbps = '500kbps'
         mp3_320kbps = '320kbps'
         mp3_128kbps = '128kbps'
-        m4a_32kbps = 'M4A 32kbps'
+        m4a_32kbps = '32kbps'
 
     def __init__(self,
                  requests_session=None,
@@ -208,8 +208,9 @@ class chiasenhac_vn(BaseSourceScrapper):
 
     @staticmethod
     def _is_download_a(tag):
-        return tag.name == 'a' and tag.has_attr(
-            'title') and 'Click' in tag['title']
+        # return tag.name == 'a' and tag.has_attr(
+        #     'title') and 'Click' in tag['title']
+        return tag.name == 'a' and tag.has_attr('class') and tag['class'] == "download_item"
 
     @staticmethod
     def _scrap_search(html, max=None):
@@ -219,34 +220,32 @@ class chiasenhac_vn(BaseSourceScrapper):
 
         soup = bs(html, 'html5lib')
 
-        table_search = soup.find('table', attrs={'class': 'tbtable'})
+        songs_div = soup.find('div',attrs={'id':'nav-music'})
 
-        if table_search:
-            for rows in enumerate(table_search.find_all('tr')):
-                if rows[0] <= max and not rows[0] == 0:  #Escaping header row
+        if songs_div:
+            for i, song_li in enumerate(songs_div.find_all('li')):
+                if i <= max:
                     song_name = None
-                    artist = None
+                    song_artist = None
                     song_url = None
 
-                    if not rows[0] == 0:  #Escaping header row
-                        for col in enumerate(rows[1].find_all('td')):
-                            # if col[0] == 0:                   ##Deprected because first
-                            #     index = int(col[1].p.string)  ## <td> is not always int
-                            if col[0] == 1:
-                                #Gets the <a href> tag
-                                song_a = col[1].find('a')
-                                if song_a:
-                                    p_artist = song_a.find_next('p')
-                                    song_name = song_a.string
-                                    #Gets the content of 'href'
-                                    #attribute
-                                    if 'href' in song_a.attrs.keys():
-                                        song_url = song_a['href']
-                                    if p_artist:
-                                        artist = p_artist.string
-                        # song_data = dict(song=song, artist=artist, url=song_url)
-                        # search_data.insert(rows[0], song_data)
-                    yield (song_name, artist, song_url)
+                    song_name_h5 = song_li.find('h5')
+                    if song_name_h5:
+                        song_name = song_name_h5.string
+
+                        song_a = song_name_h5.find('a')
+                        if song_a:
+                            song_url = song_a['href']
+                    else:
+                        max = max + 1
+                        continue
+                    
+                    song_artist_div = song_li.find('div', attrs={'class':'author'})
+                    if song_artist_div:
+                        song_artist = song_artist_div.string
+
+                    
+                    yield (song_name, song_artist, song_url)
 
     @staticmethod
     def _scrap_download_details(html):
@@ -254,7 +253,8 @@ class chiasenhac_vn(BaseSourceScrapper):
         download_data = []
 
         #Download links anchor tag
-        a_downloads = soup.find_all(chiasenhac_vn._is_download_a)
+        # a_downloads = soup.find_all(chiasenhac_vn._is_download_a)
+        a_downloads = soup.find_all('a', class_="download_item")
 
         for a_download in a_downloads:
             size = None
@@ -266,16 +266,16 @@ class chiasenhac_vn(BaseSourceScrapper):
 
             data = [line for line in get_inner_texts(a_download)]
 
-            if len(data) == 1 and chiasenhac_vn._M4A_32_STR in data[0]:
-                size = data[0].split(chiasenhac_vn._M4A_32_STR)[1].strip()
+            if len(data) == 2 and chiasenhac_vn._M4A_32_STR in data[1]:
+                size = data[1].split(chiasenhac_vn._M4A_32_STR)[1].strip()
                 quality = chiasenhac_vn.Quality.m4a_32kbps
 
-            elif len(data) == 3:
-                size = data[2].strip()
+            elif len(data) == 4:
+                size = data[3].strip()
                 # quality = QUALITY_DICT[data[1].strip()]
                 # quality = tuple(q for q in Quality if q.value == data[1].strip)[0]
                 for q in chiasenhac_vn.Quality:
-                    if q.value == data[1].strip():
+                    if q.value in data[2].strip():
                         quality = q
 
             file_data = (quality, d_url, size)
@@ -293,26 +293,34 @@ class chiasenhac_vn(BaseSourceScrapper):
 
         soup = bs(html, 'html5lib')
 
-        div_songinfo = soup.find('div', attrs={"id": "fulllyric"})
+        div_lyric = soup.find('div', attrs={"id": "fulllyric"})
+        div_songinfo = soup.find('div', attrs={"id": "pills-plus"})
 
         #For Song Name
-        a_song_name = div_songinfo.find('strong').a
-        if a_song_name:
-            song_name = a_song_name.string.strip()
+        div_h4 = div_songinfo.find('h4')
+        if div_h4:
+            span_songname = div_h4.find('span')
+            if span_songname:
+                song_name = span_songname.string.strip()
 
-        #For Other Info(Artist, Album, Year)
-        for i, tag in enumerate(div_songinfo.find_all('b')):
+        for i, tag in enumerate(div_songinfo.find_all('li')):
             if i == 0:
-                artist = tag.string
+                try:
+                    artist = tag.find(a).string
+                except:
+                    pass
             elif i == 1:
-                album = tag.a.string
+                try:
+                    album = tag.find(a).string
+                except:
+                    pass
             elif i == 2:
                 year = tag.string
 
+
         #For Lyrics
-        p_lyrics = div_songinfo.find('p', attrs={"class": "genmed"})
-        if p_lyrics:
-            lyrics = tuple(line.strip() for line in get_inner_texts(p_lyrics))
+        if div_lyric:
+            lyrics = tuple(line.strip() for line in get_inner_texts(div_lyric))
 
         return (song_name, artist, album, year, lyrics)
 
@@ -420,10 +428,10 @@ class chiasenhac_vn(BaseSourceScrapper):
             #     return result
             result = []
             for page_num in range(0, pages):
-                html = self._get(self._S_URL, s=query, page=page_num + 1)
+                html = self._get(self._S_URL, q=query, page_music=page_num + 1)
                 result = chain(result, self._scrap_search(html))
             if odd_num:
-                html = self._get(self._S_URL, s=query, page=pages + 1)
+                html = self._get(self._S_URL, q=query, page_music=pages + 1)
                 return chain(result, self._scrap_search(html, max=odd_num))
 
             return result
@@ -460,7 +468,8 @@ class chiasenhac_vn(BaseSourceScrapper):
                     {'quality':'500kbps', 'url':'http;//abd/', 'size':'1MB'}]
         """
 
-        html = self._get(url[:-5] + '_download.html')
+        # html = self._get(url[:-5] + '_download.html')
+        html = self._get(url)
         datas = self._scrap_download_details(html)
 
         if json_serializable:
