@@ -1,5 +1,5 @@
 beautifulsoup4==4.6.1
 html5lib==1.0.1
-requests==2.19.1
+requests==2.20.0
 spotipy==2.4.4
 
